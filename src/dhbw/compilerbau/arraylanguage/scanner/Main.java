@@ -1,4 +1,4 @@
-package dhbw.compiler.as;
+package dhbw.compilerbau.arraylanguage.scanner;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

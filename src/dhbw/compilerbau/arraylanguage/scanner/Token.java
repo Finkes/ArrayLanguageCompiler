@@ -1,4 +1,4 @@
-package dhbw.compiler.as;
+package dhbw.compilerbau.arraylanguage.scanner;
 /**
  * Created by dominik on 08/04/14.
  */
