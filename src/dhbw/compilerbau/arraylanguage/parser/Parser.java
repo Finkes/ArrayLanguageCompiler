@@ -25,15 +25,16 @@ public class Parser
 		return this.tokens.get(currentToken);
 	}
 	
-	protected boolean parseToken(TokenType tokenType)
+	protected Tree parseToken(TokenType tokenType)
 	{
 		int tokenPosition = getTokenStreamPosition();
+		Token nextToken = nextToken();
 		
-		if(nextToken().getType() == tokenType)
-			return true;
+		if(nextToken.getType() == tokenType)
+			return new Tree(nextToken);
 		
 		resetTokenStreamToPosition(tokenPosition);
-		return false;
+		return null;
 	}
 	
 	protected int getTokenStreamPosition()
@@ -46,7 +47,7 @@ public class Parser
 		this.tokenStreamPosition = position;
 	}
 	
-	public boolean parse()
+	public Tree parse()
 	{
 		return parseAS();
 	}
@@ -62,157 +63,225 @@ public class Parser
 		return false;
 	}
 	
-	protected boolean parseAS()
+	protected Tree parseAS()
 	{
 		int tokenPosition = getTokenStreamPosition();
 		
-		if(parseLBR() && parseElement() && parseElements() && parseRBR())
-			return true;
+		Tree nodeA,nodeB,nodeC,nodeD;
+		
+		if((nodeA = parseLBR()) != null && (nodeB = parseElement()) != null && (nodeC = parseElements()) != null && (nodeD = parseRBR()) != null)
+		{
+			Tree as = new Tree(new Token(TokenType.AS,""));
+			as.addChild(nodeA);
+			as.addChild(nodeB);
+			as.addChild(nodeC);
+			as.addChild(nodeD);
+			
+			return as;
+		}
 		
 		resetTokenStreamToPosition(tokenPosition);
-		return false;
+		return null;
 	}
 	
-	protected boolean parseElements()
+	protected Tree parseElements()
 	{	
-		while(parseElementAndComma())
-		{}
+		Tree elements = new Tree(new Token(TokenType.ELEMENTS,""));
+		Tree node;
 		
-		return true;
+		while((node = parseElementAndComma()) != null)
+		{
+			elements.addChild(node);
+		}
+		
+		return elements;
 	}
 	
-	protected boolean parseElementAndComma()
+	protected Tree parseElementAndComma()
 	{
 		int tokenPosition = getTokenStreamPosition();
 		
-		if(parseComma() && parseElement())
-			return true;
+		Tree nodeA,nodeB;
+		
+		if((nodeA = parseComma()) != null && (nodeB = parseElement()) != null)
+		{
+			Tree element = new Tree(new Token(TokenType.COMMA_AND_ELEMENT,""));
+			element.addChild(nodeA);
+			element.addChild(nodeB);
+			return element;
+		}	
 		
 		resetTokenStreamToPosition(tokenPosition);
-		return false;
+		return null;
 	}
 	
-	protected boolean parseElement()
+	protected Tree parseElement()
 	{
 		int tokenPosition = getTokenStreamPosition();
 		
+		Tree node;
 		//TODO
-		if(parseRange())
-			return true;
-		if(parseInteger())
-			return true;
-		if(parseFloat())
-			return true;
-		if(parseString())
-			return true;
-		if(parseNull())
-			return true;
+		if((node = parseRange()) != null)
+		{
+			Tree element = new Tree(new Token(TokenType.ELEMENT,""));
+			element.addChild(node);
+			return element;
+		}
+		if((node = parseInteger()) != null)
+		{
+			Tree element = new Tree(new Token(TokenType.ELEMENT,""));
+			element.addChild(node);
+			return element;
+		}	
+		if((node = parseFloat()) != null)
+		{
+			Tree element = new Tree(new Token(TokenType.ELEMENT,""));
+			element.addChild(node);
+			return element;
+		}
+		if((node = parseString()) != null)
+		{
+			Tree element = new Tree(new Token(TokenType.ELEMENT,""));
+			element.addChild(node);
+			return element;
+		}
+		if((node = parseNull()) != null)
+		{
+			Tree element = new Tree(new Token(TokenType.ELEMENT,""));
+			element.addChild(node);
+			return element;
+		}
 		
 		
 		resetTokenStreamToPosition(tokenPosition);
-		return false;
+		return null;
 	}
 	
-	protected boolean parseInteger()
+	protected Tree parseInteger()
 	{
 		int tokenPosition = getTokenStreamPosition();
 		
-		if(parseToken(TokenType.INTEGER))
-			return true;
+		Tree node;
+		if((node = parseToken(TokenType.INTEGER)) != null)
+			return node;
 					
 		resetTokenStreamToPosition(tokenPosition);
-		return false;
+		return node;
 	}
 	
-	protected boolean parseString()
+	protected Tree parseString()
 	{
 		int tokenPosition = getTokenStreamPosition();
 		
-		if(parseToken(TokenType.STRING))
-			return true;
+		Tree node;
+		if((node = parseToken(TokenType.STRING)) != null)
+			return node;
 		
 		resetTokenStreamToPosition(tokenPosition);
-		return false;
+		return node;
 	}
 	
-	protected boolean parseFloat()
+	protected Tree parseFloat()
 	{
 		int tokenPosition = getTokenStreamPosition();
 		
-		if(parseToken(TokenType.FLOAT))
-			return true;
+		Tree node;
+		if((node = parseToken(TokenType.FLOAT)) != null)
+			return node;
 		
 		resetTokenStreamToPosition(tokenPosition);
-		return false;
+		return node;
 	}
 	
-	protected boolean parseRange()
+	protected Tree parseRange()
 	{
 		int tokenPosition = getTokenStreamPosition();
 		
-		if(parseInteger() && parseRangeSymbol() && parseInteger())
-			return true;
+		Tree nodeA,nodeB,nodeC;
 		
-		if(parseFloat() && parseRangeSymbol() && parseFloat())
-			return true;
+		if((nodeA = parseInteger()) != null && (nodeB = parseRangeSymbol()) != null  && (nodeC = parseInteger()) != null)
+			{
+				Tree tree = new Tree(new Token(TokenType.RANGESPAN,""));
+				tree.addChild(nodeA);
+				tree.addChild(nodeB);
+				tree.addChild(nodeC);
+				
+				return tree;
+			}
+		
+		if((nodeA = parseFloat()) != null && (nodeB = parseRangeSymbol()) != null && (nodeC = parseFloat()) != null)
+		{
+			Tree tree = new Tree(new Token(TokenType.RANGESPAN,""));
+			tree.addChild(nodeA);
+			tree.addChild(nodeB);
+			tree.addChild(nodeC);
+			
+			return tree;
+		}
 		
 		resetTokenStreamToPosition(tokenPosition);
-		return false;
+		return null;
 	}
 	
-	protected boolean parseRangeSymbol()
+	protected Tree parseRangeSymbol()
 	{
 		int tokenPosition = getTokenStreamPosition();
 		
-		if(parseToken(TokenType.RANGE))
-			return true;
+		Tree node;
+		
+		if((node = parseToken(TokenType.RANGE)) != null)
+			return node;
 		
 		resetTokenStreamToPosition(tokenPosition);
-		return false;
+		return node;
 	}
 	
-	protected boolean parseLBR()
+	protected Tree parseLBR()
 	{
 		int tokenPosition = getTokenStreamPosition();
 		
-		if(parseToken(TokenType.LBR))
-			return true;
+		Tree node;
+		if((node = parseToken(TokenType.LBR)) != null)
+			return node;
 		
 		resetTokenStreamToPosition(tokenPosition);
-		return false;
+		return null;
 	}
 	
-	protected boolean parseNull()
+	protected Tree parseNull()
 	{
 		int tokenPosition = getTokenStreamPosition();
 		
-		if(parseToken(TokenType.NULL))
-			return true;
+		Tree node;
+		if((node = parseToken(TokenType.NULL)) != null)
+			return node;
 		
 		resetTokenStreamToPosition(tokenPosition);
-		return false;
+		return null;
 	}
 	
-	protected boolean parseRBR()
+	protected Tree parseRBR()
 	{
 		int tokenPosition = getTokenStreamPosition();
 		
-		if(parseToken(TokenType.RBR))
-			return true;
+		Tree node;
+		if((node = parseToken(TokenType.RBR)) != null)
+			return node;
 		
 		resetTokenStreamToPosition(tokenPosition);
-		return false;
+		return null;
 	}
 	
-	protected boolean parseComma()
+	protected Tree parseComma()
 	{
 		int tokenPosition = getTokenStreamPosition();
+		Tree node;
 		
-		if(parseToken(TokenType.COMMA))
-			return true;
+		if((node = parseToken(TokenType.COMMA)) != null)
+			return node;
 		
 		resetTokenStreamToPosition(tokenPosition);
-		return false;
+		return null;
 	}
 	
 	

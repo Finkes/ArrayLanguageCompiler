@@ -15,7 +15,12 @@ public class Token {
         NULL,
         EOF,
         RANGE,
-        INVALID
+        INVALID,
+        RANGESPAN,
+        ELEMENT,
+        ELEMENTS,
+        COMMA_AND_ELEMENT,
+        AS
     }
 
     private TokenType type;

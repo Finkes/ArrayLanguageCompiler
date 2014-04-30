@@ -5,12 +5,13 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 import dhbw.compilerbau.arraylanguage.parser.Parser;
+import dhbw.compilerbau.arraylanguage.parser.Tree;
 
 public class Main {
 
 	public static void main(String[] args)
 	{
-		    InputStream stream = new ByteArrayInputStream("[12,12,12.0,12.0,test,asjdhk,12..12,12.0..12.0]".getBytes());
+		    InputStream stream = new ByteArrayInputStream("[12,12,12.0,12..12,12.0..12.0]".getBytes());
 
 		    //InputStream stream = new ByteArrayInputStream("[,1.0^223,12,12,12.12..12..12,null,NULL]".getBytes());
 
@@ -34,7 +35,8 @@ public class Main {
 	            //start parsing
 	            Parser parser = new Parser(tokens);
 	            
-	            if(parser.parse())
+	            Tree tree;
+	            if((tree =parser.parse()) != null)
 	            	System.out.println("parsed successfull");
 	            else
 	            	System.out.println("parsed with failure");
